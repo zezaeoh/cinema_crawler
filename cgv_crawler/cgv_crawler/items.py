@@ -1,14 +1,22 @@
-# -*- coding: utf-8 -*-
-
-# Define here the models for your scraped items
-#
-# See documentation in:
-# https://doc.scrapy.org/en/latest/topics/items.html
-
 import scrapy
+from scrapy.loader.processors import MapCompose, Join, TakeFirst
 
+
+def filter_strip(v):
+    return v.strip()
 
 class CgvCrawlerItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
+    th_id = scrapy.Field(
+        output_processor=TakeFirst()
+    )
+    th_location_id = scrapy.Field(
+        output_processor=TakeFirst()
+    )
+    mv_title = scrapy.Field(
+        input_processor=MapCompose(filter_strip),
+        output_processor=Join()
+    )
+    mv_time = scrapy.Field(
+        output_processor=TakeFirst()
+    )
     pass

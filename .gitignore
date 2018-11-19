@@ -1,2 +1,4 @@
 .idea/
 settings.py
+cgv_crawler/cgv_test.json
+cgv_crawler/ghostdriver.log

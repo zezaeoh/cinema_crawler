@@ -11,10 +11,10 @@ class RQPipeline(object):
     def __init__(self):
         self.q = Queue(connection=Redis(host=settings['RQ_HOST'], port=settings['RQ_PORT']))
         self.table_name = 'content'
-        self.media = settings['DYNAMODB_COMID']
+        self.th_id = settings['TH_ID']
 
     def process_item(self, item, spider):
-        item['media'] = self.media
+        item['th_id'] = self.th_id
         item = dict((k, v) for k, v in item.items() if v)
         self.q.enqueue('workFunctions.dynamo_pipe_line', item, self.table_name, result_ttl=0)
         log.msg("Post sending to RQ cache!",
