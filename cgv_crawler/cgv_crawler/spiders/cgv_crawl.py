@@ -31,7 +31,7 @@ class CgvCrawlSpider(scrapy.Spider):
     def from_crawler(cls, crawler, *args, **kwargs):
         spider = super(CgvCrawlSpider, cls).from_crawler(crawler, *args, **kwargs)
         spider.now = datetime.now()
-        spider.start_dates = [spider.now, (spider.now - timedelta(1))]
+        spider.start_dates = [spider.now, (spider.now + timedelta(1))]
         spider.locations = locations
         spider.prefix = 'http://m.cgv.co.kr/'
         spider.postPage = 'http://m.cgv.co.kr/Schedule/?tc={}&t=T&ymd={}'
@@ -52,7 +52,7 @@ class CgvCrawlSpider(scrapy.Spider):
 
     def parse(self, response):
         for link in response.xpath('//*[@id="divContent"]//section'):
-            for li in link.xpath('./div[@class="time"]/ul//li'):
+            for li in link.xpath('.//ul[@class="timelist"]//li'):
                 i = ItemLoader(item=CgvCrawlerItem(), response=response)
                 i.add_value('th_location_id', response.request.meta['loca'])
                 i.add_value('mv_title', link.xpath('./h3/text()').extract())
