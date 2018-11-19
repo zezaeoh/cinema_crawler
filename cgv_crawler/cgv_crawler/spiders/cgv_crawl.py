@@ -52,10 +52,11 @@ class CgvCrawlSpider(scrapy.Spider):
 
     def parse(self, response):
         for link in response.xpath('//*[@id="divContent"]//section'):
+            title = link.xpath('./h3/text()').extract()
             for li in link.xpath('.//ul[@class="timelist"]//li'):
                 i = ItemLoader(item=CgvCrawlerItem(), response=response)
                 i.add_value('th_location_id', response.request.meta['loca'])
-                i.add_value('mv_title', link.xpath('./h3/text()').extract())
+                i.add_value('mv_title', title)
                 i.add_value('mv_time', response.request.meta['date'].strftime("%Y-%m-%d")
                             + ' ' + li.xpath('.//text()').extract_first())
                 yield i.load_item()
