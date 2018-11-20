@@ -1,12 +1,10 @@
 from __future__ import unicode_literals
 from scrapy.conf import settings
-from scrapy import log
-from rq import Queue
-from redis import Redis
 from scrapy.exporters import JsonItemExporter
 from scrapy.exceptions import CloseSpider
 
 import pymysql.cursors
+import sys
 
 
 # Mysql로 보내는 클래스
@@ -25,34 +23,21 @@ class MySqlPipeline(object):
             raise CloseSpider("ERROR: Unexpected error: Could not connect to MySql instance.")
         else:
             self.th_id = settings['TH_ID']
+            self.cursor = self.conn.cursor()
+            self.sql = 'insert into th_mv_times(th_id, br_id, mv_title, mv_time) values (%s, %s, %s, %s)'
+            init_sql = 'truncate th_mv_times'
+            self.cursor.execute(init_sql)
+            self.conn.commit()
 
     def process_item(self, item, spider):
         item['th_id'] = self.th_id
-        
+        self.cursor.execute(self.sql, [item['th_id'], item['th_location_id'], item['mv_title'], item['mv_time']])
     
     def close_spider(self, spider):
+        self.cursor.close()
         self.conn.commit()
         self.conn.close()
         print('mysql connection over')
-
-
-# RQ로 보내는 클래스
-class RQPipeline(object):
-    def __init__(self):
-        self.q = Queue(connection=Redis(host=settings['RQ_HOST'], port=settings['RQ_PORT']))
-        self.table_name = 'content'
-        self.th_id = settings['TH_ID']
-
-    def process_item(self, item, spider):
-        item['th_id'] = self.th_id
-        item = dict((k, v) for k, v in item.items() if v)
-        self.q.enqueue('workFunctions.dynamo_pipe_line', item, self.table_name, result_ttl=0)
-        log.msg("Post sending to RQ cache!",
-                level=log.DEBUG, spider=spider)
-        return item
-
-    def close_spider(self, spider):
-        print('rq connection over')
 
 
 # JSON파일로 저장하는 클래스 (test)

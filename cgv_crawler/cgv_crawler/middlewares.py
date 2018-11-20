@@ -26,13 +26,11 @@ class JavaScriptMiddleware(object):
         time.sleep(1)
         body = self.driver.page_source.encode('utf-8')
         print("parsing... " + request.url)
-        self.retry = 0
         rp = HtmlResponse(self.driver.current_url, body=body, encoding='utf-8', request=request)
         return rp
 
     def process_response(self, request, response, spider):
         return response
-
 
     def spider_closed(self, spider):
         self.driver.quit()
