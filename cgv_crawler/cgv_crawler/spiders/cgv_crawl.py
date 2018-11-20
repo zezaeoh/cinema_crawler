@@ -5,34 +5,21 @@ from cgv_crawler.items import CgvCrawlerItem
 from datetime import datetime, timedelta
 
 
-locations = [
-    '0001',  # 강변
-    '0056',  # 강남
-    '0229',  # 건대입구
-    '0010',  # 구로
-    '0063',  # 대학로
-    '0252',  # 동대문
-    '0009',  # 명동X正몰
-    '0105',  # 명동역 씨네라이브러리
-    '0105',  # 명동역 씨네라이브러리
-]
-
-
 class CgvCrawlSpider(scrapy.Spider):
     name = 'cgv_crawler'
     custom_settings = {
         'ITEM_PIPELINES': {
-            'cgv_crawler.pipelines.JsonPipeline': 400
+            'cgv_crawler.pipelines.MySqlPipeline': 400
         }
     }
     allowed_domains = ['m.cgv.co.kr']
 
     @classmethod
-    def from_crawler(cls, crawler, *args, **kwargs):
-        spider = super(CgvCrawlSpider, cls).from_crawler(crawler, *args, **kwargs)
+    def from_crawler(cls, crawler, init_table=False, **kwargs):
+        spider = super(CgvCrawlSpider, cls).from_crawler(crawler, **kwargs)
         spider.now = datetime.now()
+        spider.init_table = init_table
         spider.start_dates = [spider.now, (spider.now + timedelta(1))]
-        spider.locations = locations
         spider.prefix = 'http://m.cgv.co.kr/'
         spider.postPage = 'http://m.cgv.co.kr/Schedule/?tc={}&t=T&ymd={}'
         crawler.signals.connect(spider.spider_closed, signal=signals.spider_closed)

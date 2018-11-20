@@ -25,6 +25,14 @@ class MySqlPipeline(object):
             self.th_id = settings['TH_ID']
             self.cursor = self.conn.cursor()
             self.sql = 'insert into th_mv_times(th_id, br_id, mv_title, mv_time) values (%s, %s, %s, %s)'
+
+    def open_spider(self, spider):
+        spider.locations = []
+        branch_sql = 'select br_id from th_branch where th_id = %s'
+        self.cursor.execute(branch_sql, self.th_id)
+        for a in self.cursor.fetchall():
+            spider.locations.append('%04d' % int(a[0]))
+        if spider.init_table:
             init_sql = 'truncate th_mv_times'
             self.cursor.execute(init_sql)
             self.conn.commit()
