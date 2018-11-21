@@ -40,6 +40,7 @@ class MySqlPipeline(object):
     def process_item(self, item, spider):
         item['th_id'] = self.th_id
         self.cursor.execute(self.sql, [item['th_id'], item['th_location_id'], item['mv_title'], item['mv_time']])
+        return item
     
     def close_spider(self, spider):
         self.cursor.close()

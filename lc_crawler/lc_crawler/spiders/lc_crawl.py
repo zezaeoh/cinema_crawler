@@ -2,7 +2,7 @@ import scrapy
 from scrapy import signals
 from scrapy.loader import ItemLoader
 from lc_crawler.items import LcCrawlerItem
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class LcCrawlSpider(scrapy.Spider):
